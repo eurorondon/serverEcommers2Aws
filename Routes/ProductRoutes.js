@@ -6,27 +6,61 @@ import { admin, protect } from "./../Middleware/AuthMiddleware.js";
 const productRoute = express.Router();
 
 // GET ALL PRODUCT
-productRoute.get(
-  "/",
-  asyncHandler(async (req, res) => {
-    const pageSize = 12;
-    const page = Number(req.query.pageNumber) || 1;
-    const keyword = req.query.keyword
-      ? {
-          name: {
-            $regex: req.query.keyword,
-            $options: "i",
-          },
-        }
-      : {};
-    const count = await Product.countDocuments({ ...keyword });
-    const products = await Product.find({ ...keyword })
-      .limit(pageSize)
-      .skip(pageSize * (page - 1))
-      .sort({ _id: -1 });
-    res.json({ products, page, pages: Math.ceil(count / pageSize) });
-  })
-);
+// productRoute.get(
+//   "/",
+//   asyncHandler(async (req, res) => {
+//     const pageSize = 12;
+//     const page = Number(req.query.pageNumber) || 1;
+//     const keyword = req.query.keyword
+//       ? {
+//           name: {
+//             $regex: req.query.keyword,
+//             $options: "i",
+//           },
+//         }
+//       : {};
+//     const count = await Product.countDocuments({ ...keyword });
+//     const products = await Product.find({ ...keyword })
+//       .limit(pageSize)
+//       .skip(pageSize * (page - 1))
+//       .sort({ _id: -1 });
+//     res.json({ products, page, pages: Math.ceil(count / pageSize) });
+//   })
+// );
+
+// GET ALL PRODUCT
+productRoute.get("/", async (req, res) => {
+  const qNew = req.query.new;
+  const qCategory = req.query.category;
+  const qColor = req.query.color;
+  try {
+    let products;
+
+    if (qColor) {
+      products = await Product.find({
+        color: {
+          $in: [qColor],
+        },
+      });
+    }
+
+    if (qNew) {
+      products = await Product.find().sort({ createdAt: -1 }).limit(1);
+    } else if (qCategory) {
+      products = await Product.find({
+        categories: {
+          $in: [qCategory],
+        },
+      });
+    } else {
+      products = await Product.find();
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
 // ADMIN GET ALL PRODUCT WITHOUT SEARCH AND PEGINATION
 productRoute.get(
