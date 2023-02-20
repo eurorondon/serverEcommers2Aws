@@ -41,6 +41,8 @@ const productRoute = express.Router();
 
 // GET ALL PRODUCT FORMA LAMA
 productRoute.get("/", async (req, res) => {
+  const pageSize = 12;
+  const page = Number(req.query.pageNumber) || 1;
   const keyword = req.query.keyword
     ? {
         name: {
@@ -49,6 +51,8 @@ productRoute.get("/", async (req, res) => {
         },
       }
     : {};
+
+  const count = await Product.countDocuments({ ...keyword });
 
   const qNew = req.query.new;
   const qCategory = req.query.category;
@@ -73,10 +77,15 @@ productRoute.get("/", async (req, res) => {
         },
       });
     } else {
-      products = await Product.find({ ...keyword });
+      products = await Product.find({ ...keyword })
+        .limit(pageSize)
+        .skip(pageSize * (page - 1))
+        .sort({ _id: -1 });
     }
 
-    res.status(200).json(products);
+    res
+      .status(200)
+      .json({ products, page, pages: Math.ceil(count / pageSize) });
   } catch (error) {
     res.status(500).json(error);
   }
