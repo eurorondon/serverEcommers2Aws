@@ -5,12 +5,22 @@ import { admin, protect } from "./../Middleware/AuthMiddleware.js";
 
 const productRoute = express.Router();
 
-// GET ALL PRODUCT
+// GET ALL PRODUCT  DE FORMA TOTAL MENTE SIMPLE Y ORIGINAL
 // productRoute.get(
 //   "/",
 //   asyncHandler(async (req, res) => {
-//     const pageSize = 12;
-//     const page = Number(req.query.pageNumber) || 1;
+//     const products = await Product.find({});
+
+//     res.json(products);
+//   })
+// );
+
+// GET ALL PRODUCT CON BUSCADOR SEARCH  Y  PAGINACION
+// productRoute.get(
+//   "/",
+//   asyncHandler(async (req, res) => {
+//     const pageSize = 10;
+//     const page = Number(req.query.pageNumber) || 2;
 //     const keyword = req.query.keyword
 //       ? {
 //           name: {
@@ -24,12 +34,22 @@ const productRoute = express.Router();
 //       .limit(pageSize)
 //       .skip(pageSize * (page - 1))
 //       .sort({ _id: -1 });
+
 //     res.json({ products, page, pages: Math.ceil(count / pageSize) });
 //   })
 // );
 
-// GET ALL PRODUCT
+// GET ALL PRODUCT FORMA LAMA
 productRoute.get("/", async (req, res) => {
+  const keyword = req.query.keyword
+    ? {
+        name: {
+          $regex: req.query.keyword,
+          $options: "i",
+        },
+      }
+    : {};
+
   const qNew = req.query.new;
   const qCategory = req.query.category;
   const qColor = req.query.color;
@@ -53,7 +73,7 @@ productRoute.get("/", async (req, res) => {
         },
       });
     } else {
-      products = await Product.find();
+      products = await Product.find({ ...keyword });
     }
 
     res.status(200).json(products);
