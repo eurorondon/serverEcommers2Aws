@@ -165,9 +165,10 @@ productRoute.delete(
     const product = await Product.findById(req.params.id);
     if (product) {
       await product.remove();
-      res.json({ message: "Product deleted", product });
-      if (product.imageCloud.public_id) {
-        await deleteImage(product.imageCloud.public_id);
+      res.json({ message: "Product deleted" });
+
+      if (product.photo.public_id) {
+        await deleteImage(product.photo.public_id);
       }
     } else {
       res.status(404);
