@@ -7,12 +7,19 @@ import { errorHandler, notFound } from "./Middleware/Errors.js";
 import userRouter from "./Routes/UserRoutes.js";
 import orderRouter from "./Routes/orderRoutes.js";
 import cors from "cors";
+import fileupload from "express-fileupload";
 
 dotenv.config();
 connectDatabase();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(
+  fileupload({
+    useTempFiles: "true",
+    tempFileDir: "./upload",
+  })
+);
 
 // API
 app.use("/api/import", ImportData);

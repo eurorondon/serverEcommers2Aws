@@ -183,17 +183,16 @@ productRoute.post(
   admin,
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock } = req.body;
-    console.log(req.files);
+    let imageCloud;
 
-    // if (req.files.images) {
-    //   console.log(req.files);
-    //   const result = await uploadImage(req.files.image.tempFilePath);
-    //   await fs.remove(req.files.image.tempFilePath);
-    //   imageCloud = {
-    //     url: result.secure_url,
-    //     public_id: result.public_id,
-    //   };
-    // }
+    if (req.files.image) {
+      const result = await uploadImage(req.files.image.tempFilePath);
+      await fs.remove(req.files.image.tempFilePath);
+      imageCloud = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+    }
 
     const productExist = await Product.findOne({ name });
     if (productExist) {
