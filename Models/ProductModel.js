@@ -26,7 +26,7 @@ const productSchema = mongoose.Schema(
       type: Array,
     },
 
-    imageCloud: {
+    photo: {
       url: String,
       public_id: String,
     },

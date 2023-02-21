@@ -183,12 +183,12 @@ productRoute.post(
   admin,
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock } = req.body;
-    let imageCloud;
+    let photo;
 
-    if (req.files.image) {
-      const result = await uploadImage(req.files.image.tempFilePath);
-      await fs.remove(req.files.image.tempFilePath);
-      imageCloud = {
+    if (req.files.photo) {
+      const result = await uploadImage(req.files.photo.tempFilePath);
+      await fs.remove(req.files.photo.tempFilePath);
+      photo = {
         url: result.secure_url,
         public_id: result.public_id,
       };
@@ -204,9 +204,9 @@ productRoute.post(
         price,
         description,
         image,
-        imageCloud,
+        photo,
         countInStock,
-        user: req.user._id,
+        // user: req.user._id,
       });
       if (product) {
         const createdproduct = await product.save();
