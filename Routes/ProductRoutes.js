@@ -2,6 +2,8 @@ import express from "express";
 import asyncHandler from "express-async-handler";
 import Product from "./../Models/ProductModel.js";
 import { admin, protect } from "./../Middleware/AuthMiddleware.js";
+import { uploadImage, deleteImage } from "../libs/cloudinary.js";
+import fs from "fs-extra";
 
 const productRoute = express.Router();
 
@@ -163,7 +165,10 @@ productRoute.delete(
     const product = await Product.findById(req.params.id);
     if (product) {
       await product.remove();
-      res.json({ message: "Product deleted" });
+      res.json({ message: "Product deleted", product });
+      if (product.imageCloud.public_id) {
+        await deleteImage(product.imageCloud.public_id);
+      }
     } else {
       res.status(404);
       throw new Error("Product not Found");
@@ -178,6 +183,18 @@ productRoute.post(
   admin,
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock } = req.body;
+    console.log(req.files);
+
+    // if (req.files.images) {
+    //   console.log(req.files);
+    //   const result = await uploadImage(req.files.image.tempFilePath);
+    //   await fs.remove(req.files.image.tempFilePath);
+    //   imageCloud = {
+    //     url: result.secure_url,
+    //     public_id: result.public_id,
+    //   };
+    // }
+
     const productExist = await Product.findOne({ name });
     if (productExist) {
       res.status(400);
@@ -188,6 +205,7 @@ productRoute.post(
         price,
         description,
         image,
+        imageCloud,
         countInStock,
         user: req.user._id,
       });
@@ -196,6 +214,7 @@ productRoute.post(
         res.status(201).json(createdproduct);
       } else {
         res.status(400);
+
         throw new Error("Invalid product data");
       }
     }

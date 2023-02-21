@@ -25,27 +25,31 @@ const productSchema = mongoose.Schema(
     image: {
       type: Array,
     },
+
+    imageCloud: {
+      url: String,
+      public_id: String,
+    },
+
     categories: {
       type: Array,
     },
     color: {
       type: String,
-      required: true,
     },
 
     description: {
       type: String,
-      required: true,
     },
     reviews: [reviewSchema],
     rating: {
       type: Number,
-      required: true,
+
       default: 0,
     },
     numReviews: {
       type: Number,
-      required: true,
+
       default: 0,
     },
     price: {
