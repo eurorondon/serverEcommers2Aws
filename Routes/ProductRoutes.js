@@ -207,7 +207,7 @@ productRoute.post(
         image,
         photo,
         countInStock,
-        // user: req.user._id,
+        user: req.user._id,
       });
       if (product) {
         const createdproduct = await product.save();

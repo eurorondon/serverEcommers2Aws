@@ -18,6 +18,7 @@ const orderSchema = mongoose.Schema(
           required: true,
           ref: "Product",
         },
+        photo: { type: String, required: true },
       },
     ],
     shippingAddress: {
