@@ -27,8 +27,8 @@ const productSchema = mongoose.Schema(
     },
 
     photo: {
-      url: String,
-      public_id: String,
+      url: Array,
+      public_id: Array,
     },
 
     categories: {

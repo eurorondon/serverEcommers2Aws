@@ -183,7 +183,8 @@ productRoute.post(
   protect,
   admin,
   asyncHandler(async (req, res) => {
-    const { name, price, description, image, countInStock } = req.body;
+    const { name, price, description, image, countInStock, categories } =
+      req.body;
     let photo;
 
     if (req.files.photo) {
@@ -207,6 +208,7 @@ productRoute.post(
         image,
         photo,
         countInStock,
+        categories,
         user: req.user._id,
       });
       if (product) {
@@ -250,14 +252,23 @@ productRoute.post(
   "/:id/image",
   // protect,
   asyncHandler(async (req, res) => {
-    const { image } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (product) {
-      product.image.push(image);
+      let photo;
+      if (req.files.photo) {
+        const result = await uploadImage(req.files.photo.tempFilePath);
+        await fs.remove(req.files.photo.tempFilePath);
+        photo = {
+          url: result.secure_url,
+          public_id: result.public_id,
+        };
+
+        product.photo.url.push(photo.url);
+      }
 
       await product.save();
-      res.status(201).json({ message: "Reviewed Added" });
+      res.status(201).json({ message: "Foto agregada" });
     } else {
       res.status(404);
       throw new Error("Product not Found");
