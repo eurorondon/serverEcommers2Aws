@@ -26,10 +26,12 @@ const productSchema = mongoose.Schema(
       type: Array,
     },
 
-    photo: {
-      url: Array,
-      public_id: Array,
-    },
+    photo: [
+      {
+        url: String,
+        public_id: String,
+      },
+    ],
 
     categories: {
       type: Array,

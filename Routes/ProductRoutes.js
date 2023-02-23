@@ -264,7 +264,7 @@ productRoute.post(
           public_id: result.public_id,
         };
 
-        product.photo.url.push(photo.url);
+        product.photo.push(photo);
       }
 
       await product.save();
