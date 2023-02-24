@@ -186,13 +186,16 @@ productRoute.post(
     const { name, price, description, image, countInStock, categories } =
       req.body;
     let photo;
-
-    if (req.files.photo) {
+    if (req.files) {
       const result = await uploadImage(req.files.photo.tempFilePath);
       await fs.remove(req.files.photo.tempFilePath);
       photo = {
         url: result.secure_url,
         public_id: result.public_id,
+      };
+    } else {
+      photo = {
+        url: image,
       };
     }
 
@@ -254,18 +257,25 @@ productRoute.post(
   asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
+    const { image } = req.body;
+
     if (product) {
       let photo;
-      if (req.files.photo) {
+      if (req.files) {
         const result = await uploadImage(req.files.photo.tempFilePath);
         await fs.remove(req.files.photo.tempFilePath);
         photo = {
           url: result.secure_url,
           public_id: result.public_id,
         };
+      } else {
+        photo = {
+          url: image,
+        };
 
-        product.photo.push(photo);
+        console.log(photo);
       }
+      product.photo.push(photo);
 
       await product.save();
       res.status(201).json({ message: "Foto agregada" });
