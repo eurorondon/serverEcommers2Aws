@@ -54,43 +54,46 @@ productRoute.get("/", async (req, res) => {
       }
     : {};
 
-  const count = await Product.countDocuments({ ...keyword });
+  let count = await Product.countDocuments({ ...keyword });
+  let products;
 
   const qNew = req.query.new;
   const qCategory = req.query.category;
   const qColor = req.query.color;
-  try {
-    let products;
 
-    if (qColor) {
-      products = await Product.find({
-        color: {
-          $in: [qColor],
-        },
-      });
-    }
+  if (qColor) {
+    products = await Product.find({
+      color: {
+        $in: [qColor],
+      },
+    });
+  } else if (qNew) {
+    products = await Product.find().sort({ createdAt: -1 }).limit(1);
+  } else if (qCategory) {
+    const categoryKeyword = {
+      categories: {
+        $in: [qCategory],
+      },
+    };
+    products = await Product.find({ ...keyword, ...categoryKeyword })
+      .limit(pageSize)
+      .skip(pageSize * (page - 1))
+      .sort({ _id: -1 });
 
-    if (qNew) {
-      products = await Product.find().sort({ createdAt: -1 }).limit(1);
-    } else if (qCategory) {
-      products = await Product.find({
-        categories: {
-          $in: [qCategory],
-        },
-      });
-    } else {
-      products = await Product.find({ ...keyword })
-        .limit(pageSize)
-        .skip(pageSize * (page - 1))
-        .sort({ _id: -1 });
-    }
-
-    res
-      .status(200)
-      .json({ products, page, pages: Math.ceil(count / pageSize) });
-  } catch (error) {
-    res.status(500).json(error);
+    count = await Product.countDocuments({ ...keyword, ...categoryKeyword });
+  } else {
+    products = await Product.find({ ...keyword })
+      .limit(pageSize)
+      .skip(pageSize * (page - 1))
+      .sort({ _id: -1 });
   }
+
+  res.status(200).json({
+    products,
+    page,
+    pages: Math.ceil(count / pageSize),
+    count,
+  });
 });
 
 // ADMIN GET ALL PRODUCT WITHOUT SEARCH AND PEGINATION
