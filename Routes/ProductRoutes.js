@@ -237,6 +237,16 @@ productRoute.put(
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock, categories } =
       req.body;
+
+    let photo = [];
+
+    if (image) {
+      photo.push({
+        url: image, // Obtener el primer valor del arreglo
+        public_id: "placeholder", // Agregar el valor del ID de la imagen si corresponde
+      });
+    }
+
     const product = await Product.findById(req.params.id);
     if (product) {
       product.name = name || product.name;
@@ -245,6 +255,7 @@ productRoute.put(
       product.image = image || product.image;
       product.countInStock = countInStock || product.countInStock;
       product.categories = categories || product.categories;
+      product.photo = photo.length > 0 ? photo : product.photo;
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
