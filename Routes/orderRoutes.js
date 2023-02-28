@@ -14,7 +14,7 @@ orderRouter.post(
   asyncHandler(async (req, res) => {
     const {
       orderItems,
-      shippingAddress,
+      // shippingAddress,
       paymentMethod,
       itemsPrice,
       taxPrice,
@@ -30,7 +30,7 @@ orderRouter.post(
       const order = new Order({
         orderItems,
         user: req.user._id,
-        shippingAddress,
+        // shippingAddress,
         paymentMethod,
         itemsPrice,
         taxPrice,
