@@ -29,7 +29,7 @@ const orderSchema = mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      required: true,
+      // required: true,
       default: "Paypal",
     },
     paymentResult: {
@@ -45,7 +45,7 @@ const orderSchema = mongoose.Schema(
     },
     shippingPrice: {
       type: Number,
-      required: true,
+      // required: true,
       default: 0.0,
     },
     totalPrice: {
