@@ -162,8 +162,8 @@ productRoute.post(
 // DELETE PRODUCT
 productRoute.delete(
   "/:id",
-  protect,
-  admin,
+  // protect,
+  // admin,
   asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
@@ -183,8 +183,8 @@ productRoute.delete(
 // CREATE PRODUCT
 productRoute.post(
   "/",
-  protect,
-  admin,
+  // protect,
+  // admin,
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock, categories } =
       req.body;
@@ -197,9 +197,15 @@ productRoute.post(
         public_id: result.public_id,
       };
     } else {
-      photo = {
-        url: image,
-      };
+      photo = image.map((img) => {
+        return {
+          url: img,
+        };
+      });
+
+      // photo = {
+      //   url: image,
+      // };
     }
 
     const productExist = await Product.findOne({ name });
@@ -215,7 +221,7 @@ productRoute.post(
         photo,
         countInStock,
         categories,
-        user: req.user._id,
+        // user: req.user._id,
       });
       if (product) {
         const createdproduct = await product.save();
@@ -240,10 +246,11 @@ productRoute.put(
 
     let photo = [];
 
-    if (image) {
-      photo.push({
-        url: image, // Obtener el primer valor del arreglo
-        public_id: "placeholder", // Agregar el valor del ID de la imagen si corresponde
+    if (image && Array.isArray(image)) {
+      photo = image.map((img, index) => {
+        return {
+          url: img.trim(),
+        };
       });
     }
 
@@ -288,8 +295,6 @@ productRoute.post(
         photo = {
           url: image,
         };
-
-        console.log(photo);
       }
       product.photo.push(photo);
 
