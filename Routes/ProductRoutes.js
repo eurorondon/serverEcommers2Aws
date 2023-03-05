@@ -278,7 +278,7 @@ productRoute.put(
     if (image && Array.isArray(image)) {
       photo = image.map((img, index) => {
         return {
-          url: img.trim(),
+          url: img,
         };
       });
     }
