@@ -188,6 +188,21 @@ productRoute.post(
   asyncHandler(async (req, res) => {
     const { name, price, description, image, countInStock, categories } =
       req.body;
+
+    if (typeof image === "string") {
+      const imageArray = image.split(",");
+      console.log(imageArray);
+      console.log(imageArray.length);
+    } else {
+      console.log("La variable 'image' no es una cadena.");
+    }
+
+    console.log(typeof image);
+
+    // const imageArray = image.split(",");
+    // console.log(imageArray);
+    // console.log(imageArray.length);
+
     let photo;
     if (req.files) {
       const result = await uploadImage(req.files.photo.tempFilePath);
@@ -196,26 +211,31 @@ productRoute.post(
         url: result.secure_url,
         public_id: result.public_id,
       };
-    } else if (image.length === 1) {
+    }
+
+    if (typeof image === "string") {
       photo = {
         url: image,
       };
-      console.log(image.length);
-
-      if (image.length > 1) {
-        console.log(image.length);
-      }
-
-      // photo = {
-      //   url: image,
-      // };
-    } else if (image.length > 1) {
-      photo = image.map((img) => {
+    } else {
+      photo = Object.values(image).map((img) => {
         return {
           url: img,
         };
       });
     }
+
+    // photo = {
+    //   url: image,
+    // };
+    // } else {
+    //   console.log("mayor a 1 elemento");
+    //   photo = image.map((img) => {
+    //     return {
+    //       url: img,
+    //     };
+    //   });
+    // }
 
     const productExist = await Product.findOne({ name });
     if (productExist) {
