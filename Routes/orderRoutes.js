@@ -206,4 +206,41 @@ orderRouter.post(
   })
 );
 
+// GET UPLOAD IMAGE COMPROBANTE DE PAGO
+orderRouter.get(
+  "/upload",
+  // protect,
+  // admin,
+  asyncHandler(async (req, res) => {
+    const { name, email } = req.body;
+    try {
+      let image;
+      if (req.files.image) {
+        console.log(req.files.image);
+        const result = await uploadImageComprobante(
+          req.files.image.tempFilePath
+        );
+        await fs.remove(req.files.image.tempFilePath);
+
+        image = {
+          url: result.secure_url,
+          public_id: result.public_id,
+        };
+
+        const newComprobante = new Comprobante({ image, name, email });
+        await newComprobante.save();
+      } else {
+        console.log("no existe rq files image");
+      }
+      console.log(image);
+      return res.status(200).json(image);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: error.message });
+    }
+    // const { name, price, description, image, countInStock, categories } =
+    //   req.body;
+  })
+);
+
 export default orderRouter;

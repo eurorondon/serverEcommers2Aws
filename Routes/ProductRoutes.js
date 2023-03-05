@@ -189,35 +189,26 @@ productRoute.post(
     const { name, price, description, image, countInStock, categories } =
       req.body;
 
-    if (typeof image === "string") {
-      const imageArray = image.split(",");
-      console.log(imageArray);
-      console.log(imageArray.length);
-    } else {
-      console.log("La variable 'image' no es una cadena.");
-    }
-
-    console.log(typeof image);
-
-    // const imageArray = image.split(",");
-    // console.log(imageArray);
-    // console.log(imageArray.length);
-
     let photo;
+
     if (req.files) {
+      console.log("entre en req.files");
       const result = await uploadImage(req.files.photo.tempFilePath);
       await fs.remove(req.files.photo.tempFilePath);
       photo = {
         url: result.secure_url,
         public_id: result.public_id,
       };
-    }
-
-    if (typeof image === "string") {
+      console.log(req.files.photo.tempFilePath);
+    } else if (typeof image === "objet") {
+      console.log("entre en objet");
+      const imageArray = image.split(",");
+    } else if (typeof image === "string") {
       photo = {
         url: image,
       };
     } else {
+      console.log("no es nada de esa mierda");
       photo = Object.values(image).map((img) => {
         return {
           url: img,
@@ -255,6 +246,7 @@ productRoute.post(
       if (product) {
         const createdproduct = await product.save();
         res.status(201).json(createdproduct);
+        console.log(product);
       } else {
         res.status(400);
 
