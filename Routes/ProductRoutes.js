@@ -335,4 +335,5 @@ productRoute.post(
     }
   })
 );
+
 export default productRoute;

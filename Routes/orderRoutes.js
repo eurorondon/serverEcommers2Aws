@@ -4,6 +4,9 @@ import { admin, protect } from "../Middleware/AuthMiddleware.js";
 import Order from "./../Models/OrderModel.js";
 import EmailSender from "./../sendEmail.js";
 import EmailSenderAdmin from "./../sendEmailAdmin.js";
+import { uploadImageComprobante } from "./../libs/cloudinary.js";
+import Comprobante from "../Models/ComprobanteModel.js";
+import fs from "fs-extra";
 
 const orderRouter = express.Router();
 
@@ -163,6 +166,43 @@ orderRouter.put(
       res.status(404, order);
       throw new Error("Order Not Found");
     }
+  })
+);
+
+// UPLOAD IMAGE COMPROBANTE DE PAGO
+orderRouter.post(
+  "/upload",
+  // protect,
+  // admin,
+  asyncHandler(async (req, res) => {
+    const { name, email } = req.body;
+    try {
+      let image;
+      if (req.files.image) {
+        console.log(req.files.image);
+        const result = await uploadImageComprobante(
+          req.files.image.tempFilePath
+        );
+        await fs.remove(req.files.image.tempFilePath);
+
+        image = {
+          url: result.secure_url,
+          public_id: result.public_id,
+        };
+
+        const newComprobante = new Comprobante({ image, name, email });
+        await newComprobante.save();
+      } else {
+        console.log("no existe rq files image");
+      }
+      console.log(image);
+      return res.status(200).json(image);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: error.message });
+    }
+    // const { name, price, description, image, countInStock, categories } =
+    //   req.body;
   })
 );
 

@@ -12,6 +12,12 @@ export const uploadImage = async (filepath) => {
   });
 };
 
+export const uploadImageComprobante = async (filepath) => {
+  return await cloudinary.uploader.upload(filepath, {
+    folder: "ComprobantesDePago",
+  });
+};
+
 export const deleteImage = async (id) => {
   return await cloudinary.uploader.destroy(id);
 };
