@@ -196,16 +196,25 @@ productRoute.post(
         url: result.secure_url,
         public_id: result.public_id,
       };
-    } else {
+    } else if (image.length === 1) {
+      photo = {
+        url: image,
+      };
+      console.log(image.length);
+
+      if (image.length > 1) {
+        console.log(image.length);
+      }
+
+      // photo = {
+      //   url: image,
+      // };
+    } else if (image.length > 1) {
       photo = image.map((img) => {
         return {
           url: img,
         };
       });
-
-      // photo = {
-      //   url: image,
-      // };
     }
 
     const productExist = await Product.findOne({ name });
