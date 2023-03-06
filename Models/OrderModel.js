@@ -58,6 +58,12 @@ const orderSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+
+    comprobantePago: {
+      type: String,
+      required: true,
+      default: "aun no compra",
+    },
     paidAt: {
       type: Date,
     },

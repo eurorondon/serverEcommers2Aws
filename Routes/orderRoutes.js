@@ -114,7 +114,7 @@ orderRouter.put(
   })
 );
 
-// ORDER IS PAID
+// ORDER IS DELIVERED
 orderRouter.put(
   "/:id/delivered",
   protect,
@@ -136,6 +136,7 @@ orderRouter.put(
 
 // ****** SEND EMAIL CLIENT & ADMIN
 orderRouter.post("/send", async (req, res) => {
+  const order = await Order.findById(req.params.id);
   try {
     const { totalPrice, _id, userName, email } = req.body;
     EmailSender({ totalPrice, _id, userName, email });
@@ -170,70 +171,32 @@ orderRouter.put(
 );
 
 // UPLOAD IMAGE COMPROBANTE DE PAGO
-orderRouter.post(
-  "/upload",
+orderRouter.put(
+  "/:id/upload",
   // protect,
   // admin,
   asyncHandler(async (req, res) => {
-    const { name, email } = req.body;
-    try {
-      let image;
-      if (req.files.image) {
-        console.log(req.files.image);
-        const result = await uploadImageComprobante(
-          req.files.image.tempFilePath
-        );
-        await fs.remove(req.files.image.tempFilePath);
+    const order = await Order.findById(req.params.id);
+    console.log(order);
 
-        image = {
-          url: result.secure_url,
-          public_id: result.public_id,
-        };
+    let image;
+    if (req.files.image) {
+      console.log(req.files.image);
+      const result = await uploadImageComprobante(req.files.image.tempFilePath);
+      await fs.remove(req.files.image.tempFilePath);
 
-        const newComprobante = new Comprobante({ image, name, email });
-        await newComprobante.save();
-      } else {
-        console.log("no existe rq files image");
-      }
-      console.log(image);
-      return res.status(200).json(image);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: error.message });
+      image = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
     }
-    // const { name, price, description, image, countInStock, categories } =
-    //   req.body;
-  })
-);
 
-// GET UPLOAD IMAGE COMPROBANTE DE PAGO
-orderRouter.get(
-  "/upload",
-  // protect,
-  // admin,
-  asyncHandler(async (req, res) => {
-    const { name, email } = req.body;
     try {
-      let image;
-      if (req.files.image) {
-        console.log(req.files.image);
-        const result = await uploadImageComprobante(
-          req.files.image.tempFilePath
-        );
-        await fs.remove(req.files.image.tempFilePath);
-
-        image = {
-          url: result.secure_url,
-          public_id: result.public_id,
-        };
-
-        const newComprobante = new Comprobante({ image, name, email });
-        await newComprobante.save();
-      } else {
-        console.log("no existe rq files image");
+      if (order) {
+        order.comprobantePago = image.url;
       }
-      console.log(image);
-      return res.status(200).json(image);
+      const updatedOrder = await order.save();
+      return res.status(200).json(updatedOrder);
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: error.message });

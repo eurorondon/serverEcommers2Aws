@@ -192,23 +192,19 @@ productRoute.post(
     let photo;
 
     if (req.files) {
-      console.log("entre en req.files");
       const result = await uploadImage(req.files.photo.tempFilePath);
       await fs.remove(req.files.photo.tempFilePath);
       photo = {
         url: result.secure_url,
         public_id: result.public_id,
       };
-      console.log(req.files.photo.tempFilePath);
     } else if (typeof image === "objet") {
-      console.log("entre en objet");
       const imageArray = image.split(",");
     } else if (typeof image === "string") {
       photo = {
         url: image,
       };
     } else {
-      console.log("no es nada de esa mierda");
       photo = Object.values(image).map((img) => {
         return {
           url: img,
