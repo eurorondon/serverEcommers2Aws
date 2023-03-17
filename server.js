@@ -18,6 +18,7 @@ app.use(
   fileupload({
     useTempFiles: "true",
     tempFileDir: "./upload",
+    limits: { fileSize: Infinity },
   })
 );
 
