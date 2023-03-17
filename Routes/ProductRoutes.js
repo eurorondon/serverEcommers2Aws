@@ -183,69 +183,43 @@ productRoute.delete(
 // CREATE PRODUCT
 productRoute.post(
   "/",
-  // protect,
-  // admin,
   asyncHandler(async (req, res) => {
-    const { name, price, description, image, countInStock, categories } =
-      req.body;
+    const { name, price, description, countInStock, categories } = req.body;
 
-    let photo;
+    let photos = [];
 
-    if (req.files) {
-      const result = await uploadImage(req.files.photo.tempFilePath);
-      await fs.remove(req.files.photo.tempFilePath);
-      photo = {
-        url: result.secure_url,
-        public_id: result.public_id,
-      };
-    } else if (typeof image === "objet") {
-      const imageArray = image.split(",");
-    } else if (typeof image === "string") {
-      photo = {
-        url: image,
-      };
-    } else {
-      photo = Object.values(image).map((img) => {
-        return {
-          url: img,
-        };
-      });
+    if (req.files && req.files.photo) {
+      if (!Array.isArray(req.files.photo)) {
+        // Si solo hay una imagen, envuelve el objeto en un array
+        req.files.photo = [req.files.photo];
+      }
+
+      const promises = req.files.photo.map((file) =>
+        uploadImage(file.tempFilePath)
+      );
+      const results = await Promise.all(promises);
+      photos = results.map((result) => ({ url: result.secure_url }));
     }
-
-    // photo = {
-    //   url: image,
-    // };
-    // } else {
-    //   console.log("mayor a 1 elemento");
-    //   photo = image.map((img) => {
-    //     return {
-    //       url: img,
-    //     };
-    //   });
-    // }
 
     const productExist = await Product.findOne({ name });
     if (productExist) {
       res.status(400);
-      throw new Error("Product name already exist");
+      throw new Error("Product name already exists");
     } else {
       const product = new Product({
         name,
         price,
         description,
-        image,
-        photo,
+        photo: photos,
         countInStock,
         categories,
-        // user: req.user._id,
       });
+
       if (product) {
-        const createdproduct = await product.save();
-        res.status(201).json(createdproduct);
-        console.log(product);
+        const createdProduct = await product.save();
+        res.status(201).json(createdProduct);
       } else {
         res.status(400);
-
         throw new Error("Invalid product data");
       }
     }

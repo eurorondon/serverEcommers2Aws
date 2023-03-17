@@ -22,9 +22,9 @@ const productSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    image: {
-      type: Array,
-    },
+    // image: {
+    //   type: Array,
+    // },
 
     photo: [
       {
@@ -56,12 +56,12 @@ const productSchema = mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true,
+      // required: true,
       default: 0,
     },
     countInStock: {
       type: Number,
-      required: true,
+      // required: true,
       default: 0,
     },
   },
