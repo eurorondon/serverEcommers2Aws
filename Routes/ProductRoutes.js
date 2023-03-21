@@ -167,6 +167,13 @@ productRoute.delete(
   asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
+      // Elimina todas las fotos del producto de Cloudinary
+      product.photo.forEach(async (photo) => {
+        if (photo.public_id) {
+          await deleteImage(photo.public_id);
+        }
+      });
+
       await product.remove();
       res.json({ message: "Product deleted" });
 
@@ -197,9 +204,24 @@ productRoute.post(
       const promises = req.files.photo.map((file) =>
         uploadImage(file.tempFilePath)
       );
+
+      // await fs.remove(req.files.photo.tempFilePath);
+
       const results = await Promise.all(promises);
-      photos = results.map((result) => ({ url: result.secure_url }));
+      photos = results.map((result) => ({
+        url: result.secure_url,
+        public_id: result.public_id,
+      }));
     }
+
+    // Elimina los archivos después de cargarlos en Cloudinary
+    req.files.photo.forEach((file) => {
+      fs.remove(file.tempFilePath, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+    });
 
     const productExist = await Product.findOne({ name });
     if (productExist) {
@@ -235,25 +257,65 @@ productRoute.put(
     const { name, price, description, image, countInStock, categories } =
       req.body;
 
-    let photo = [];
+    let photos = [];
 
-    if (image && Array.isArray(image)) {
-      photo = image.map((img, index) => {
-        return {
-          url: img,
-        };
+    if (req.files && req.files.photo) {
+      // console.log(req.files.photo.tempFilePath);
+      if (!Array.isArray(req.files.photo)) {
+        // Si solo hay una imagen, envuelve el objeto en un array
+        req.files.photo = [req.files.photo];
+      }
+
+      const promises = req.files.photo.map((file) =>
+        uploadImage(file.tempFilePath)
+      );
+
+      // Elimina los archivos después de cargarlos en Cloudinary
+      req.files.photo.forEach((file) => {
+        fs.remove(file.tempFilePath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+      });
+
+      const results = await Promise.all(promises);
+      photos = results.map((result) => ({
+        url: result.secure_url,
+        public_id: result.public_id,
+      }));
+
+      // Actualizar la URL pública de Cloudinary en la base de datos
+      photos.forEach(async (photo) => {
+        await Product.findByIdAndUpdate(req.params.id, {
+          $set: { image: photo.url },
+        });
       });
     }
 
     const product = await Product.findById(req.params.id);
     if (product) {
+      const v1 = product.photo;
+      product.photo = photos || product.photo;
       product.name = name || product.name;
       product.price = price || product.price;
       product.description = description || product.description;
       product.image = image || product.image;
       product.countInStock = countInStock || product.countInStock;
       product.categories = categories || product.categories;
-      product.photo = photo.length > 0 ? photo : product.photo;
+      if (product.photo != 0) {
+        product.photo = photos || product.photo;
+        // console.log("si existe nueva foto");
+        v1.forEach(async (photo) => {
+          if (photo.public_id) {
+            await deleteImage(photo.public_id);
+          }
+          // console.log(v1);
+        });
+      } else {
+        product.photo = v1 || product.photo;
+        // console.log("no existe nueva foto");
+      }
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
