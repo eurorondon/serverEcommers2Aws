@@ -76,7 +76,7 @@ orderRouter.get(
   asyncHandler(async (req, res) => {
     const order = await Order.findById(req.params.id).populate(
       "user",
-      "name email"
+      "name number email"
     );
 
     if (order) {
