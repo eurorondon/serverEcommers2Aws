@@ -18,10 +18,11 @@ const productRoute = express.Router();
 // );
 
 // GET ALL PRODUCT CON BUSCADOR SEARCH  Y  PAGINACION
+
 // productRoute.get(
 //   "/",
 //   asyncHandler(async (req, res) => {
-//     const pageSize = 10;
+//     const pageSize = 2;
 //     const page = Number(req.query.pageNumber) || 2;
 //     const keyword = req.query.keyword
 //       ? {
@@ -34,7 +35,7 @@ const productRoute = express.Router();
 //     const count = await Product.countDocuments({ ...keyword });
 //     const products = await Product.find({ ...keyword })
 //       .limit(pageSize)
-//       .skip(pageSize * (page - 1))
+//       .skip(pageSize * (page + 1))
 //       .sort({ _id: -1 });
 
 //     res.json({ products, page, pages: Math.ceil(count / pageSize) });
@@ -42,9 +43,10 @@ const productRoute = express.Router();
 // );
 
 // GET ALL PRODUCT FORMA LAMA
+
 productRoute.get("/", async (req, res) => {
-  // const pageSize = 12;
-  // const page = Number(req.query.pageNumber) || 1;
+  const pageSize = 20;
+  const page = Number(req.query.pageNumber) || 0;
   const keyword = req.query.keyword
     ? {
         $or: [
@@ -80,22 +82,22 @@ productRoute.get("/", async (req, res) => {
       },
     };
     products = await Product.find({ ...keyword, ...categoryKeyword })
-      // .limit(pageSize)
-      // .skip(pageSize * (page - 1))
+      .limit(pageSize)
+      .skip(pageSize * (page - 1))
       .sort({ _id: -1 });
 
     count = await Product.countDocuments({ ...keyword, ...categoryKeyword });
   } else {
     products = await Product.find({ ...keyword })
-      // .limit(pageSize)
-      // .skip(pageSize * (page - 1))
+      .limit(pageSize)
+      .skip(pageSize * page)
       .sort({ _id: -1 });
   }
 
   res.status(200).json({
     products,
-    // page,
-    // pages: Math.ceil(count / pageSize),
+    page,
+    pages: Math.ceil(count / pageSize),
     count,
   });
 });

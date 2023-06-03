@@ -8,13 +8,13 @@ cloudinary.config({
 
 export const uploadImage = async (filepath) => {
   return await cloudinary.uploader.upload(filepath, {
-    folder: "laraPlastic",
+    folder: "laraPlastic/Productos",
   });
 };
 
 export const uploadImageComprobante = async (filepath) => {
   return await cloudinary.uploader.upload(filepath, {
-    folder: "ComprobantesDePago",
+    folder: "laraPlastic/ComprobantesDePago",
   });
 };
 
