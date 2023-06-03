@@ -8,6 +8,7 @@ import userRouter from "./Routes/UserRoutes.js";
 import orderRouter from "./Routes/orderRoutes.js";
 import cors from "cors";
 import fileupload from "express-fileupload";
+import categoryRouter from "./Routes/categoryRouter.js";
 
 dotenv.config();
 connectDatabase();
@@ -27,6 +28,7 @@ app.use("/api/import", ImportData);
 app.use("/api/products", productRoute);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/category", categoryRouter);
 app.get("/api/config/paypal", (req, res) => {
   res.send(process.env.PAYPAL_CLIENT_ID);
 });

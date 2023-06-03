@@ -83,7 +83,7 @@ productRoute.get("/", async (req, res) => {
     };
     products = await Product.find({ ...keyword, ...categoryKeyword })
       .limit(pageSize)
-      .skip(pageSize * (page - 1))
+      .skip(pageSize * page)
       .sort({ _id: -1 });
 
     count = await Product.countDocuments({ ...keyword, ...categoryKeyword });
